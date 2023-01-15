@@ -1,27 +1,35 @@
+import numpy as np
+
+N = 10
 
 with open("input.txt", "r") as archivo:
     lineas = [ i.strip() for i in archivo.readlines() ]
+    #lineas = "R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2".split("\n")
+    #lineas = "R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20".split("\n")
 
-    hx, hy = (0,0)
-    tx, ty = (0,0)
+movs  = { 'U': (0, +1), 'D': (0, -1), 'R': (+1, 0), 'L': (-1, 0) }
+nudos = [ [0,0] for i in range(N) ]
 
-    for i in lineas:
-        #print(i, "|", hx,hy, "|", tx, ty)
-        if i[0]   == 'U':
-            hx += int(i[2])
+visited = set()
+visited.add(tuple(nudos[-1]))
 
-        elif i[0] == 'D':
-            hx -= int(i[2])
+for num, line in enumerate(lineas):
+    direction, steps = line.split()
+    for _ in range( int(steps) ):
+        nudos[0][0] += movs[direction][0]
+        nudos[0][1] += movs[direction][1]
 
-        elif i[0] == 'R':
-            hy += int(i[2])
+        for i in range(N-1):
+            dx = nudos[i][0] - nudos[i+1][0]
+            dy = nudos[i][1] - nudos[i+1][1]
 
-        elif i[0] == 'L':
-            hy -= int(i[2])
+            if abs(dx) > 1 or abs(dy) > 1:
+                nudos[i+1][0] += 1 if dx > 0 else -1 if dx < 0 else 0
+                nudos[i+1][1] += 1 if dy > 0 else -1 if dy < 0 else 0
 
-        grid = [[ '.' for _ in range(min(15, max(5, hx))) ] for _ in range(min(15, max(5, hy)))]
-        grid[0][0] = "T"
-        grid[0][0] = "H"
+            visited.add(tuple(nudos[-1]))
 
-        print("".join([j for j in grid[0]]), end="\r")
 
+
+
+print( len(visited) )
