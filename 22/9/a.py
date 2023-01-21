@@ -1,4 +1,3 @@
-import numpy as np
 
 N = 10
 
@@ -28,8 +27,5 @@ for num, line in enumerate(lineas):
                 nudos[i+1][1] += 1 if dy > 0 else -1 if dy < 0 else 0
 
             visited.add(tuple(nudos[-1]))
-
-
-
 
 print( len(visited) )
