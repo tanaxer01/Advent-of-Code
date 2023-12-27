@@ -17,7 +17,7 @@ func PartA() {
         parts := strings.Split(line, " ")
         score := RateHand(parts[0])
 
-        fmt.Println(parts, score)
+        fmt.Println(parts)
 
     }
 
