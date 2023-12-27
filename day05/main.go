@@ -21,33 +21,12 @@ func PartA() {
     }
 
     var idx int = 1
-    // Seed to soil
-    idx, options := ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
+    var options [][]int
 
-    // Soil to fertilizer
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
-
-    // Fertilizer to water
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
-
-    // Water to light
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
-
-    // Light to temperature
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
-
-    // Temperature to humidity 
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
-
-    // Humidity to location
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMap(options, seedsInt)
+    for idx < len(lines)-1 {
+        idx, options = ParseMap(lines, idx+2)
+        seedsInt = ApplyMap(options, seedsInt)
+    }
 
     var min int = seedsInt[0] 
     for _, i := range seedsInt {
@@ -60,7 +39,7 @@ func PartA() {
 }
 
 func PartB() {
-	var lines []string = utils.ReadLines("inputs/test05.txt")
+	var lines []string = utils.ReadLines("inputs/day05.txt")
 
     seedsStr := strings.Split(lines[0][7:], " ")
     var seedsInt [][]int
@@ -69,60 +48,33 @@ func PartB() {
         n1, _ := strconv.Atoi(seedsStr[i])
         n2, _ := strconv.Atoi(seedsStr[i+1])
 
-        //for i := 0; i < n2; i++ {
-        //    seedsInt = append(seedsInt, n1+i)
-        //}
         seedsInt = append(seedsInt, []int{n1, n2})
     }
 
     var idx int = 1
-    // Seed to soil
-    idx, options := ParseMap(lines, idx+2)
-    //seedsInt = ApplyMapRange(options, seedsInt)
-    seedsInt = ApplyMapRange(options, seedsInt)
- 
-    // Soil to fertilizer
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
+    var options [][]int
+    for idx < len(lines)-1 {
+        idx, options = ParseMap(lines, idx+2)
+        seedsInt = ApplyMapRange(options, seedsInt)
+    }
 
-    // Fertilizer to water
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
 
-    // Water to light
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
-
-    // Light to temperature
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
-
-    // Temperature to humidity 
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
-
-    // Humidity to location
-    idx, options = ParseMap(lines, idx+2)
-    seedsInt = ApplyMapRange(options, seedsInt)
-
-    /*
-    var min int = seedsInt[0] 
+    var min int = seedsInt[0][0]
     for _, i := range seedsInt {
-        if min > i {
-            min = i
+        if min > i[0] {
+            min = i[0]
         }
     }
-    */
 
-    fmt.Printf("\t part B: %d\n", 0)
+    fmt.Printf("\t part B: %d\n", min)
 
 }
 
-func ParseMap(lines []string, offset int) (int, [][]int) {// {{{
+func ParseMap(lines []string, offset int) (int, [][]int) {
     var idx int = offset
     var options [][]int
 
-    for ;lines[idx] != "" && idx < len(lines) - 1;idx++ {
+    for ;lines[idx] != "" && idx < len(lines) - 1; idx++ {
         partsStr := strings.Split(lines[idx], " ")
         partsInt := make([]int, len(partsStr)) 
 
@@ -135,7 +87,7 @@ func ParseMap(lines []string, offset int) (int, [][]int) {// {{{
     }
 
     return idx, options 
-}// }}}
+}
 
 func ApplyMap(options [][]int, input []int) []int {
     output := make([]int, len(input))
@@ -160,25 +112,32 @@ func ApplyMap(options [][]int, input []int) []int {
 func ApplyMapRange(options [][]int, input [][]int) [][]int {
     var output [][]int
 
-    for _, seedRange := range input {
-        fmt.Print(seedRange, ": ")
+    for ;len(input) != 0; input = input[1:]  {
+        curr := input[0]
 
+        var changed bool = false
         for _, option := range options {
-            if seedRange[0] >= option[1] && seedRange[0] + seedRange[1] <= option[1] + option[2] {
-                var a int = seedRange[0] - option[1] + option[0]
-                var b int = seedRange[0] 
+            if curr[0] >= option[1] && curr[0] < option[1] + option[2] {
+                a := curr[0] - option[1] + option[0]
+                b := curr[1]
+                changed = true
 
                 if a + b > option[0] + option[2] {
+                    extra := (curr[0] + curr[1]) - (option[1] + option[2])
+                    b -= extra
 
+                    input = append(input, []int{curr[0] + (curr[1] - extra), extra})
                 }
-                fmt.Print(option, "--", a, "-", b, " ")
-                output = append(output, []int{a, b})
+
+                output = append(output, []int{a,b})
             }
         }
-        fmt.Println()
-    }
-    fmt.Println("-->", output)
 
+        if !changed {
+            output = append(output, curr)
+        }
+    }
+    
     return output
 }
 
